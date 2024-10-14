@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonMB<GameManager>
 {
-    public bool IsTimerRunning => countdownTimer.IsTimerRunning();
+    public bool IsTimerRunning => CountdownTimer.IsTimerRunning();
     public bool IsFishing { get; private set;}
 
     public event Action<int> OnFishCountChange;
@@ -14,7 +14,7 @@ public class GameManager : SingletonMB<GameManager>
     
     private UIManager UIManager => UIManager.Instance;
     private AudioSystem AudioSystem => AudioSystem.Instance;
-    private CountdownTimer countdownTimer;
+    private CountdownTimer CountdownTimer => CountdownTimer.Instance;
     private Task currentTask;
     private int currentFishCount;
     
@@ -36,7 +36,6 @@ public class GameManager : SingletonMB<GameManager>
 
     void Start()
     {
-        countdownTimer = GetComponent<CountdownTimer>();
         //StartCoroutine(GetTimeEverySecond());
         if(UIManager)
             UIManager.ToggleNewTaskPanel();
@@ -60,7 +59,7 @@ public class GameManager : SingletonMB<GameManager>
         currentTask = UIManager.GetNewTask();
         if (currentTask.Minutes <= 0) return;
 
-        countdownTimer.StartCountdown(currentTask.Minutes);
+        CountdownTimer.StartCountdown(currentTask.Minutes);
         UIManager.TimerStarted(true);
         IsFishing = true;
         // close the panel
@@ -85,7 +84,7 @@ public class GameManager : SingletonMB<GameManager>
 
     public void StopFishing()
     {
-        countdownTimer.StopTimer();
+        CountdownTimer.StopTimer();
         UIManager.TimerStarted(false);
         IsFishing = false;
     }
@@ -106,6 +105,4 @@ public class GameManager : SingletonMB<GameManager>
         OnFishCountChange?.Invoke(currentFishCount);
         UIManager.SetFishCountUI(currentFishCount);
     }
-    public void PlayGame() => SceneManager.LoadScene("FishingGame");
-    public void ExitGame() => Application.Quit();
 }

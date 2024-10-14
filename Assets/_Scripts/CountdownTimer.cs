@@ -3,7 +3,7 @@ using TMPro;
 using System.Collections;
 using NaughtyAttributes;
 
-public class CountdownTimer : MonoBehaviour
+public class CountdownTimer : SingletonMB<CountdownTimer>
 {
     private GameManager GameManager => GameManager.Instance;
     //[SerializeField] private GameObject timerPausedText;

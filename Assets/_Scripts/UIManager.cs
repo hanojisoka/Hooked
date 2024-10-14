@@ -52,10 +52,6 @@ public class UIManager : SingletonMB<UIManager>
     {
         bool isActive = newTaskPanel.activeSelf;
         newTaskPanel.SetActive(!isActive);
-        //if(!isActive)
-            //LeanTween.moveLocalY(taskNamePanel, -20, 1f);
-        //else
-            //LeanTween.moveLocalY(taskNamePanel, 100, 1f);
     }
 
     public void TimerStarted(bool isTimeRunning)
@@ -119,7 +115,8 @@ public class UIManager : SingletonMB<UIManager>
                 minutesInput.text = "5";
         }
     }
-
+    public void StopFishingButton() => GameManager.StopFishing();
+    public void StartNewTaskButton() => GameManager.StartNewTask();
     public void MainMenu() => SceneManager.LoadScene("MainMenu");
 
 }
