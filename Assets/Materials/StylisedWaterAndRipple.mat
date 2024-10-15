@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: StylisedWater
-  m_Shader: {fileID: -6465566751694194690, guid: e5dc31758db11e4458797c5ae084bf22,
+  m_Name: StylisedWaterAndRipple
+  m_Shader: {fileID: -6465566751694194690, guid: fb66d171d7f762c47994de99f5375c21,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

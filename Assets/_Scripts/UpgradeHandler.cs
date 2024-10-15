@@ -11,6 +11,7 @@ public class UpgradeHandler : SingletonMB<UpgradeHandler>
     [SerializeField] private Button upgradeButton;
     [SerializeField] private TextMeshProUGUI fishRequiredText;
     [SerializeField] private List<UpgradeProgression> upgradeProgressions = new();
+    [SerializeField] private GameObject upgradeVFX;
 
     private GameManager GameManager => GameManager.Instance;
 
@@ -61,7 +62,18 @@ public class UpgradeHandler : SingletonMB<UpgradeHandler>
 
     private void AnimationUpgrade()
     {
-        //TODO: make animation upgrade
-        upgradeProgressions[CurrentLevel].UpgradePart.gameObject.SetActive(true);
+        GameObject newUpgrade = upgradeProgressions[CurrentLevel].UpgradePart.gameObject;
+
+        foreach (ParticleSystem vfx in upgradeVFX.GetComponentsInChildren<ParticleSystem>())
+        {
+            var shape = vfx.shape;
+            shape.shapeType = ParticleSystemShapeType.Mesh;
+            shape.mesh = newUpgrade.GetComponent<MeshFilter>().sharedMesh;
+
+            shape.scale = newUpgrade.transform.localScale;
+            vfx.Play();
+        }
+        upgradeVFX.transform.position = newUpgrade.transform.position;
+        newUpgrade.SetActive(true);
     }
 }
