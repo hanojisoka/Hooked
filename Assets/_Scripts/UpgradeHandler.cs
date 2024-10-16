@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class UpgradeHandler : SingletonMB<UpgradeHandler>
 {
-    public int CurrentLevel;
+    public int CurrentLevel { get; private set; }
+    public event Action OnUpgradeIsland;
+    public static List<UpgradeProgression> UpgradeProgressions { get => Instance.upgradeProgressions; }
 
     [SerializeField] private Button upgradeButton;
     [SerializeField] private TextMeshProUGUI fishRequiredText;
@@ -26,43 +29,54 @@ public class UpgradeHandler : SingletonMB<UpgradeHandler>
     {
         GameManager.OnFishCountChange += GameManager_OnFishCountChange;
         upgradeButton.onClick.AddListener(UpgradeIsland);
-        fishRequiredText.text = $"Get {upgradeProgressions[CurrentLevel].FishCost} to upgrade";
+        UpdateFishRequiredText();
     }
-    private void OnEnable()
-    {
-        
-    }
-    private void OnDisable()
+    private void OnDestroy()
     {
         GameManager.OnFishCountChange -= GameManager_OnFishCountChange;
+        base.OnDestroy();
     }
     private void GameManager_OnFishCountChange(int currentFishCount)
     {
-        if(currentFishCount >= upgradeProgressions[CurrentLevel].FishCost)
-            upgradeButton.gameObject.SetActive(true);
-        else
-            upgradeButton.gameObject.SetActive(false);
+/*        Debug.Log($"{CurrentLevel} {upgradeProgressions.Count}");
+        if (CurrentLevel >= upgradeProgressions.Count)
+        {
+            SetUpgradeButtonActive(false);
+            return;
+        }*/
+        SetUpgradeButtonActive(CurrentLevel < upgradeProgressions.Count && currentFishCount >= upgradeProgressions[CurrentLevel].FishCost);
     }
+
+    public void SetUpgradeButtonActive(bool active) => upgradeButton.gameObject.SetActive(active);
 
     public void UpgradeIsland()
     {
         if (upgradeProgressions.Count > CurrentLevel)
         {
-            GameManager.FishCountHandler(-upgradeProgressions[CurrentLevel].FishCost); // take fish required
-            AnimationUpgrade();
             CurrentLevel++;
+            GameManager.FishCountHandler(-upgradeProgressions[CurrentLevel - 1].FishCost); // take fish required
+            Debug.Log($"{-upgradeProgressions[CurrentLevel - 1].FishCost} Fish");
+            AnimationUpgrade();
+            OnUpgradeIsland?.Invoke();
+            UpdateFishRequiredText();
+        } 
+    }
 
-            if(CurrentLevel >= upgradeProgressions.Count)
-                fishRequiredText.text = $"Max upgrade reached";
-            else
-                fishRequiredText.text = $"Get {upgradeProgressions[CurrentLevel].FishCost} fish to upgrade";
-        }
-            
+    public void UpdateFishRequiredText()
+    {
+        if (CurrentLevel >= upgradeProgressions.Count)
+            fishRequiredText.text = $"Max upgrade reached";
+        else
+            fishRequiredText.text = $"Get {upgradeProgressions[CurrentLevel].FishCost} fish to upgrade";
+    }
+    public void SetCurrentIslandLevel(int level)
+    {
+        CurrentLevel = level;
     }
 
     private void AnimationUpgrade()
     {
-        GameObject newUpgrade = upgradeProgressions[CurrentLevel].UpgradePart.gameObject;
+        GameObject newUpgrade = upgradeProgressions[CurrentLevel - 1].UpgradePart.gameObject;
 
         foreach (ParticleSystem vfx in upgradeVFX.GetComponentsInChildren<ParticleSystem>())
         {

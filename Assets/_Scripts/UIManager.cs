@@ -29,8 +29,15 @@ public class UIManager : SingletonMB<UIManager>
         //taskNamePanel.GetComponent<RectTransform>().position = new Vector3(0, 100, 0);
     }
 
+    private void OnDestroy()
+    {
+        GameManager.OnCountdownFinished -= GameManager_OnCountdownFinished;
+        base.OnDestroy();
+    }
+
     private void GameManager_OnCountdownFinished()
     {
+        Debug.Log(startFishButtonText);
         startFishButtonText.text = "Reel in";
         startFishButtonText.transform.parent.GetComponent<Image>().color = startColor;
     }
@@ -110,13 +117,20 @@ public class UIManager : SingletonMB<UIManager>
         // Check if the input is a valid number
         if (!string.IsNullOrEmpty(input) && int.TryParse(input, out int value))
         {
-            // If it's negative, reset to an empty string or to zero
+            // If value is less than 5 remove input
             if (value < 5)
-                minutesInput.text = "5";
+                minutesInput.text = "";
+
+
+            
         }
     }
     public void StopFishingButton() => GameManager.StopFishing();
     public void StartNewTaskButton() => GameManager.StartNewTask();
-    public void MainMenu() => SceneManager.LoadScene("MainMenu");
+    public void MainMenu() 
+    {
+        GameManager.StopFishing();
+        SceneManager.LoadScene("MainMenu");
+    }
 
 }

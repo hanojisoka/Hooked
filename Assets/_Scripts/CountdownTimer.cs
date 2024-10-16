@@ -55,7 +55,7 @@ public class CountdownTimer : SingletonMB<CountdownTimer>
     {
 
         yield return new WaitForSeconds(0.1f);
-        timeToDisplay += 1;  // Add 1 second to round the countdown display properly
+        //timeToDisplay += 1;  // Add 1 second to round the countdown display properly
 
         int hours = Mathf.FloorToInt(timeToDisplay / 3600);   // Calculate the hours
         int minutes = Mathf.FloorToInt((timeToDisplay % 3600) / 60);  // Calculate the remaining minutes
@@ -120,7 +120,7 @@ public class CountdownTimer : SingletonMB<CountdownTimer>
     [Button]
     public void DebugFinishTimer()
     {
-        timeRemaining = 0;
+        timeRemaining = -1;
     }
 
 

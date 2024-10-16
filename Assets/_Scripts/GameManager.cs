@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : SingletonMB<GameManager>
 {
@@ -14,10 +15,12 @@ public class GameManager : SingletonMB<GameManager>
     
     private UIManager UIManager => UIManager.Instance;
     private AudioSystem AudioSystem => AudioSystem.Instance;
+    private UpgradeHandler UpgradeHandler => UpgradeHandler.Instance;
     private CountdownTimer CountdownTimer => CountdownTimer.Instance;
     private Task currentTask;
     private int currentFishCount;
-    
+    private int currentLevel;
+    private List<UpgradeHandler.UpgradeProgression> Progression => UpgradeHandler.UpgradeProgressions;
 
     private MenuSettings currentSettings;
 
@@ -36,23 +39,9 @@ public class GameManager : SingletonMB<GameManager>
 
     void Start()
     {
-        //StartCoroutine(GetTimeEverySecond());
         if(UIManager)
             UIManager.ToggleNewTaskPanel();
     }
-    /*IEnumerator GetTimeEverySecond()
-    {
-        currentTime = DateTime.Now;
-        UIManager.SetUITime(currentTime.ToString(isMilitaryTime ? "H:mm" : "h:mm tt"));
-        yield return new WaitForSeconds(1f);
-        StartCoroutine(GetTimeEverySecond());
-    }
-
-    public void ToggleMilitaryTime()
-    {
-        isMilitaryTime = !isMilitaryTime;
-        UIManager.SetUITime(currentTime.ToString(isMilitaryTime ? "H:mm" : "h:mm tt"));
-    }*/
 
     public void StartNewTask()
     {
@@ -64,6 +53,41 @@ public class GameManager : SingletonMB<GameManager>
         IsFishing = true;
         // close the panel
         UIManager.ToggleNewTaskPanel();
+    }
+
+    private void OnLevelWasLoaded(int level)
+    {
+        if(level == 1)
+        {
+            UpgradeHandler.OnUpgradeIsland += UpgradeHandler_OnUpgradeIsland;
+            Debug.Log($"{level} was loaded");
+            StartCoroutine(InitDelay());
+            
+        }
+    }
+    private IEnumerator InitDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
+        
+        UIManager.SetFishCountUI(currentFishCount);
+
+        for (int i = 0; i < currentLevel; i++)
+        {
+            Progression[i].UpgradePart.SetActive(true);
+        }
+        UpgradeHandler.SetCurrentIslandLevel(currentLevel);
+        UpgradeHandler.UpdateFishRequiredText();
+        UpgradeHandler.SetUpgradeButtonActive(currentLevel < Progression.Count && currentFishCount >= Progression[currentLevel].FishCost);
+    }
+    private void OnDestroy()
+    {
+        if(UpgradeHandler)
+            UpgradeHandler.OnUpgradeIsland -= UpgradeHandler_OnUpgradeIsland;
+        base.OnDestroy();
+    }
+    private void UpgradeHandler_OnUpgradeIsland()
+    {
+        currentLevel = UpgradeHandler.CurrentLevel;
     }
 
     public void CountdownFinished()

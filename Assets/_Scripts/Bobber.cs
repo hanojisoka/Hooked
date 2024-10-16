@@ -14,7 +14,7 @@ public class Bobber : MonoBehaviour
         GameManager.OnFishCountChange += GameManager_OnFishCountChange;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         GameManager.OnCountdownFinished -= GameManager_OnCountdownFinished;
         GameManager.OnFishCountChange -= GameManager_OnFishCountChange;
@@ -22,12 +22,10 @@ public class Bobber : MonoBehaviour
 
     private void GameManager_OnFishCountChange(int fish)
     {
-        if(fish > 0) // if the fish change means a fish will be added
-        {
-            splashVFX.Stop();
-            rippleVFX.Stop();
-            // stop splash sound?
-        }
+        splashVFX.Stop();
+        rippleVFX.Stop();
+        // stop splash sound?
+        
     }
 
     private void GameManager_OnCountdownFinished()
