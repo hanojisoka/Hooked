@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bobber : MonoBehaviour
 {
     private GameManager GameManager => GameManager.Instance;
+    [SerializeField] private BobberMovement bobMove;
     [SerializeField] private ParticleSystem splashVFX;
     [SerializeField] private ParticleSystem rippleVFX;
     void Start()
@@ -24,6 +25,7 @@ public class Bobber : MonoBehaviour
     {
         splashVFX.Stop();
         rippleVFX.Stop();
+        bobMove.StopMovement();
         // stop splash sound?
         
     }
@@ -32,6 +34,7 @@ public class Bobber : MonoBehaviour
     {
         splashVFX.Play();
         rippleVFX.Play();
+        bobMove.StartMovement();
         // play splash sound?
     }
 
@@ -41,8 +44,12 @@ public class Bobber : MonoBehaviour
 
         if (Physics.Raycast(transform.position, down, out RaycastHit hitInfo, 2))
         {
-            Vector3 hitPoint = hitInfo.point;
-            transform.position = hitPoint;
+            if(hitInfo.transform.tag == "Sea")
+            {
+                Vector3 hitPoint = hitInfo.point;
+                transform.position = hitPoint;
+            }
+            
         }
         yield return new WaitForSeconds(0.1f);
         StartCoroutine(SetPositionToSeaSurface());

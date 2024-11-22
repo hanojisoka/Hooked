@@ -5,7 +5,7 @@ using System;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
-public class GameManager : SingletonMB<GameManager>
+public class GameManager : SingletonMB<GameManager>, IDataPersistence
 {
     public bool IsTimerRunning => CountdownTimer.IsTimerRunning();
     public bool IsFishing { get; private set;}
@@ -19,7 +19,7 @@ public class GameManager : SingletonMB<GameManager>
     private CountdownTimer CountdownTimer => CountdownTimer.Instance;
     private Task currentTask;
     private int currentFishCount;
-    private int currentLevel;
+    private int currentLevel => UpgradeHandler.CurrentLevel;
     private List<UpgradeHandler.UpgradeProgression> Progression => UpgradeHandler.UpgradeProgressions;
 
     private MenuSettings currentSettings;
@@ -54,17 +54,6 @@ public class GameManager : SingletonMB<GameManager>
         // close the panel
         UIManager.ToggleNewTaskPanel();
     }
-
-    private void OnLevelWasLoaded(int level)
-    {
-        if(level == 1)
-        {
-            UpgradeHandler.OnUpgradeIsland += UpgradeHandler_OnUpgradeIsland;
-            Debug.Log($"{level} was loaded");
-            StartCoroutine(InitDelay());
-            
-        }
-    }
     private IEnumerator InitDelay()
     {
         yield return new WaitForSeconds(0.1f);
@@ -78,16 +67,6 @@ public class GameManager : SingletonMB<GameManager>
         UpgradeHandler.SetCurrentIslandLevel(currentLevel);
         UpgradeHandler.UpdateFishRequiredText();
         UpgradeHandler.SetUpgradeButtonActive(currentLevel < Progression.Count && currentFishCount >= Progression[currentLevel].FishCost);
-    }
-    private void OnDestroy()
-    {
-        if(UpgradeHandler)
-            UpgradeHandler.OnUpgradeIsland -= UpgradeHandler_OnUpgradeIsland;
-        base.OnDestroy();
-    }
-    private void UpgradeHandler_OnUpgradeIsland()
-    {
-        currentLevel = UpgradeHandler.CurrentLevel;
     }
 
     public void CountdownFinished()
@@ -128,5 +107,18 @@ public class GameManager : SingletonMB<GameManager>
         currentFishCount += fish; // can be - or + fish
         OnFishCountChange?.Invoke(currentFishCount);
         UIManager.SetFishCountUI(currentFishCount);
+    }
+    /// <summary>
+    /// Save data
+    /// </summary>
+    public void LoadData(GameData data)
+    {
+        this.currentFishCount = data.FishCount;
+        StartCoroutine(InitDelay());
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.FishCount = this.currentFishCount;
     }
 }

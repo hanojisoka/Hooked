@@ -91,7 +91,8 @@ public class CountdownTimer : SingletonMB<CountdownTimer>
 
     public void StopTimer()
     {
-        StopCoroutine(coroutineTimer);
+        if(coroutineTimer != null)
+            StopCoroutine(coroutineTimer);
         isTimerRunning = false;
         timerText.text = "";
     }

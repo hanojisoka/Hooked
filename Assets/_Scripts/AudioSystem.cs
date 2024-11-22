@@ -6,11 +6,14 @@ public class AudioSystem : SingletonMB<AudioSystem>
 
     public AudioSource MusicSource;
     public AudioSource SoundsSource;
-    [SerializeField] private Slider audioSlider;
+    [SerializeField] private Slider musicSlider;
+    [SerializeField] private Slider soundSlider;
+
 
     private void Start()
     {
-        audioSlider.onValueChanged.AddListener(OnAudioVolumeChange);
+        musicSlider.onValueChanged.AddListener(OnMusicVolumeChange);
+        soundSlider.onValueChanged.AddListener(OnSoundVolumeChage);
     }
     public void PlayMusic(AudioClip clip)
     {
@@ -34,8 +37,19 @@ public class AudioSystem : SingletonMB<AudioSystem>
         SoundsSource.Stop();
     }
 
-    private void OnAudioVolumeChange(float volume)
+    private void OnMusicVolumeChange(float volume)
     {
         MusicSource.volume = volume;
+    }
+
+    private void OnSoundVolumeChage(float volume)
+    {
+        SoundsSource.volume = volume;
+    }
+    
+    public void SetAudioSettings(float musicVolume, float soundVolume)
+    {
+        musicSlider.value = musicVolume;
+        soundSlider.value = soundVolume;
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 
-public class UpgradeHandler : SingletonMB<UpgradeHandler>
+public class UpgradeHandler : SingletonMB<UpgradeHandler>, IDataPersistence
 {
     public int CurrentLevel { get; private set; }
     public event Action OnUpgradeIsland;
@@ -89,5 +89,15 @@ public class UpgradeHandler : SingletonMB<UpgradeHandler>
         }
         upgradeVFX.transform.position = newUpgrade.transform.position;
         newUpgrade.SetActive(true);
+    }
+
+    public void LoadData(GameData data)
+    {
+        this.CurrentLevel = data.Level;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.Level = this.CurrentLevel;
     }
 }
