@@ -7,18 +7,33 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Staff_New_aiStandardSurface2
+      name: Staff_New:aiStandardSurface2
     second: {fileID: 2100000, guid: 077f4a717bc88884caea9b51f2dc38ea, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: model_Tera_lp_aiStandardSurface1
+      name: Staff_New_aiStandardSurface2
+    second: {fileID: 2100000, guid: faf6212750f420d4880af846265a9cf5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: model:Tera_lp:aiStandardSurface1
     second: {fileID: 2100000, guid: 96cc80fda9361e54ba41b2b82fa1eaac, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: model_Tera_lp_aiStandardSurface2
+      name: model:Tera_lp:aiStandardSurface2
     second: {fileID: 2100000, guid: e1a34461e1a07244785d293e47dd84e8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: model_Tera_lp_aiStandardSurface1
+    second: {fileID: 2100000, guid: d1428efc34a22db48baae4449713defa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: model_Tera_lp_aiStandardSurface2
+    second: {fileID: 2100000, guid: 063be5cc27634ff48823411a7727dcc6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
