@@ -39,8 +39,8 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
 
     void Start()
     {
-        if(UIManager)
-            UIManager.ToggleNewTaskPanel();
+        /*if(UIManager)
+            UIManager.ToggleNewTaskPanel();*/
     }
 
     public void StartNewTask()

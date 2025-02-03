@@ -3,11 +3,12 @@ using System.Collections;
 
 public class BobberMovement : MonoBehaviour
 {
-    public float squareSize = 10f; // Size of the square boundary
+    //public float squareSize = 10f; // Size of the square boundary
     public float minWaitTime = 1f; // Minimum wait time before moving
     public float maxWaitTime = 5f; // Maximum wait time before moving
     public float moveSpeed = 2f; // Speed of the movement
-    public Vector3 squareOffset = Vector3.zero; // Offset for the square's position
+    //public Vector3 squareOffset = Vector3.zero; // Offset for the square's position
+    [SerializeField] private FishingSpot fishingSpot;
 
     private Vector3 targetPosition;
     private Coroutine movementCoroutine;
@@ -20,9 +21,10 @@ public class BobberMovement : MonoBehaviour
             float waitTime = Random.Range(minWaitTime, maxWaitTime);
             yield return new WaitForSeconds(waitTime);
 
+            float squareSize = fishingSpot.SquareSize;
             // Generate a new random target position inside the square boundary with offset
-            float randomX = Random.Range(-squareSize / 2f, squareSize / 2f) + squareOffset.x;
-            float randomZ = Random.Range(-squareSize / 2f, squareSize / 2f) + squareOffset.z;
+            float randomX = Random.Range(-squareSize / 2f, squareSize / 2f) + fishingSpot.transform.GetChild(0).transform.position.x;
+            float randomZ = Random.Range(-squareSize / 2f, squareSize / 2f) + fishingSpot.transform.GetChild(0).transform.position.z;
             targetPosition = new Vector3(randomX, transform.position.y, randomZ);
 
             // Move towards the target position
@@ -52,13 +54,6 @@ public class BobberMovement : MonoBehaviour
         {
             movementCoroutine = StartCoroutine(MoveRandomly());
         }
-    }
-
-    // Optional: Draw the boundary in the scene view
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(squareOffset, new Vector3(squareSize, 0f, squareSize));
     }
 
 
