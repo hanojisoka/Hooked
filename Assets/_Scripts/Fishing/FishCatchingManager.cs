@@ -21,6 +21,7 @@ public class FishCatchingManager : SingletonMB<FishCatchingManager>
     }
 
     [SerializeField] private List<FishTypeData> fishTypeDatas = new();
+    public FishingMiniGame MiniGame;
 
     public FishTypeData GetFishDataToCatch(float timeInMinutes)
     {

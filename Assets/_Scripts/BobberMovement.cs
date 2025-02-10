@@ -13,11 +13,14 @@ public class BobberMovement : MonoBehaviour
     private Vector3 targetPosition;
     private Coroutine movementCoroutine;
     private FishingSpotManager _fm;
-
-    private void OnEnable()
+    private void Start()
     {
         _fm = FishingSpotManager.Instance;
         _fm.OnNewFishingSpot += _fm_OnNewFishingSpot;
+    }
+    private void OnEnable()
+    {
+        
     }
     private void OnDisable()
     {

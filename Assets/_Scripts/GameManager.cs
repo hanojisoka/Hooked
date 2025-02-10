@@ -17,7 +17,7 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
     private AudioSystem AudioSystem => AudioSystem.Instance;
     private UpgradeHandler UpgradeHandler => UpgradeHandler.Instance;
     private CountdownTimer CountdownTimer => CountdownTimer.Instance;
-    private FishingSpotManager FishingManager => FishingSpotManager.Instance;
+    private FishingSpotManager FishingSpotManager => FishingSpotManager.Instance;
     private FishCatchingManager FishCatchingManager => FishCatchingManager.Instance;
 
     private Task currentTask;
@@ -94,7 +94,10 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
             //restart timer warning
             UIManager.ShowReelWarning();
         else
-            CatchFish();
+        {
+            if (FishCatchingManager.MiniGame.ReelIn())
+                CatchFish();
+        }
     }
 
     public void StopFishing()
@@ -114,7 +117,7 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
         AudioSystem.SoundsSource.Stop();
         UIManager.TimerStarted(false);
         IsFishing = false;
-        FishingManager.MakeNewFishingSpot();
+        FishingSpotManager.MakeNewFishingSpot();
 
         Debug.Log($"{fishData.Type.ToString()} is caught with a value of: {fishToAdd}");
     }

@@ -46,6 +46,7 @@ public class CountdownTimer : SingletonMB<CountdownTimer>
         timeRemaining = minutes * 60; // Convert minutes to seconds
         isTimerRunning = true;         // Start the timer
         isPaused = false;              // Ensure it's not paused
+        timerText.gameObject.SetActive(true);
 
         coroutineTimer = StartCoroutine(DisplayTime(timeRemaining - 0.1f));
     }
@@ -114,6 +115,7 @@ public class CountdownTimer : SingletonMB<CountdownTimer>
     private void OnTimerFinished()
     {
         GameManager.CountdownFinished();
+        timerText.gameObject.SetActive(false);
     }
 
 
