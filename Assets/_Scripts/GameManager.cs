@@ -17,12 +17,17 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
     private AudioSystem AudioSystem => AudioSystem.Instance;
     private UpgradeHandler UpgradeHandler => UpgradeHandler.Instance;
     private CountdownTimer CountdownTimer => CountdownTimer.Instance;
+    private FishingSpotManager FishingManager => FishingSpotManager.Instance;
+    private FishCatchingManager FishCatchingManager => FishCatchingManager.Instance;
+
     private Task currentTask;
     private int currentFishCount;
     private int currentLevel => UpgradeHandler.CurrentLevel;
     private List<UpgradeHandler.UpgradeProgression> Progression => UpgradeHandler.UpgradeProgressions;
 
     private MenuSettings currentSettings;
+
+    public GameObject Player;
 
     private class MenuSettings
     {
@@ -41,6 +46,13 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
     {
         /*if(UIManager)
             UIManager.ToggleNewTaskPanel();*/
+        Player.GetComponent<CharacterMoveToPosition>().OnArrivedToFishingSpot 
+            += GameManager_OnArrivedToFishingSpot;
+    }
+
+    private void GameManager_OnArrivedToFishingSpot()
+    {
+        UIManager.StartFishReelInButton();
     }
 
     public void StartNewTask()
@@ -94,17 +106,22 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
 
     private void CatchFish()
     {
-        int fishToAdd = (currentTask.Minutes - 1) / 20 + 1;
-        UIManager.PlusFishAnimation(fishToAdd);
+        FishCatchingManager.FishTypeData fishData = FishCatchingManager.GetFishDataToCatch(currentTask.Minutes); // gets a random fish depending on minutes passed
+        string fishSize = FishCatchingManager.GetFishSizeString(currentTask.Minutes); // get size from minutes
+        int fishToAdd = (int)FishCatchingManager.GetFishValue(fishData, currentTask.Minutes); // gets fish calculated value      
+        UIManager.PlusFishAnimation(fishToAdd, fishData.Type.ToString(), fishSize);
         FishCountHandler(fishToAdd);
         AudioSystem.SoundsSource.Stop();
         UIManager.TimerStarted(false);
         IsFishing = false;
+        FishingManager.MakeNewFishingSpot();
+
+        Debug.Log($"{fishData.Type.ToString()} is caught with a value of: {fishToAdd}");
     }
 
-    public void FishCountHandler(int fish)
+    public void FishCountHandler(int fishCount)
     {
-        currentFishCount += fish; // can be - or + fish
+        currentFishCount += fishCount; // can be - or + fish 
         OnFishCountChange?.Invoke(currentFishCount);
         UIManager.SetFishCountUI(currentFishCount);
     }

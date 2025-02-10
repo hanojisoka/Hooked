@@ -37,7 +37,6 @@ public class UIManager : SingletonMB<UIManager>
 
     private void GameManager_OnCountdownFinished()
     {
-        Debug.Log(startFishButtonText);
         startFishButtonText.text = "Reel in";
         startFishButtonText.transform.parent.GetComponent<Image>().color = startColor;
     }
@@ -67,11 +66,12 @@ public class UIManager : SingletonMB<UIManager>
         {
             startFishButtonText.text = "Stop Fishing";
             startFishButtonText.transform.parent.GetComponent<Image>().color = stopColor;
+            startFishButtonText.transform.parent.gameObject.SetActive(true);
         }
         else
         {
             startFishButtonText.text = "Start Fishing";
-            startFishButtonText.transform.parent.GetComponent<Image>().color = startColor;
+            startFishButtonText.transform.parent.gameObject.SetActive(false);
         }
     }
 
@@ -96,14 +96,14 @@ public class UIManager : SingletonMB<UIManager>
         return newTask;
     }
 
-    public void PlusFishAnimation(int addFish)
+    public void PlusFishAnimation(int addFish, string fishType, string size)
     {
         CanvasGroup canvasGroup = plusFishUI.GetComponent<CanvasGroup>();
-        plusFishUI.GetComponentInChildren<TextMeshProUGUI>().text = $"+{addFish}";
+        plusFishUI.GetComponentInChildren<TextMeshProUGUI>().text = $"{size} {fishType}\nValue: {addFish}";
         canvasGroup.alpha = 1f;
         plusFishUI.transform.localPosition = Vector3.zero;
         LeanTween.moveLocalY(plusFishUI, 15f, 5f);
-        LeanTween.alphaCanvas(canvasGroup, 0f, 2f);
+        LeanTween.alphaCanvas(canvasGroup, 0f, 3f);
 
     }
 

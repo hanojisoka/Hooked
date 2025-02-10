@@ -12,20 +12,33 @@ public class BobberMovement : MonoBehaviour
 
     private Vector3 targetPosition;
     private Coroutine movementCoroutine;
+    private FishingSpotManager _fm;
+
+    private void OnEnable()
+    {
+        _fm = FishingSpotManager.Instance;
+        _fm.OnNewFishingSpot += _fm_OnNewFishingSpot;
+    }
+    private void OnDisable()
+    {
+        _fm.OnNewFishingSpot -= _fm_OnNewFishingSpot;
+    }
+
+    private void _fm_OnNewFishingSpot(FishingSpot spot)
+    {
+        fishingSpot = spot;
+    }
 
     IEnumerator MoveRandomly()
     {
+        transform.position = fishingSpot.transform.GetChild(0).position;
         while (true)
         {
             // Wait for a random time before moving
             float waitTime = Random.Range(minWaitTime, maxWaitTime);
             yield return new WaitForSeconds(waitTime);
 
-            float squareSize = fishingSpot.SquareSize;
-            // Generate a new random target position inside the square boundary with offset
-            float randomX = Random.Range(-squareSize / 2f, squareSize / 2f) + fishingSpot.transform.GetChild(0).transform.position.x;
-            float randomZ = Random.Range(-squareSize / 2f, squareSize / 2f) + fishingSpot.transform.GetChild(0).transform.position.z;
-            targetPosition = new Vector3(randomX, transform.position.y, randomZ);
+            targetPosition = GetTargetPosition();
 
             // Move towards the target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
@@ -54,6 +67,15 @@ public class BobberMovement : MonoBehaviour
         {
             movementCoroutine = StartCoroutine(MoveRandomly());
         }
+    }
+
+    private Vector3 GetTargetPosition()
+    {
+        float squareSize = fishingSpot.SquareSize;
+        // Generate a new random target position inside the square boundary with offset
+        float randomX = Random.Range(-squareSize / 2f, squareSize / 2f) + fishingSpot.transform.GetChild(0).transform.position.x;
+        float randomZ = Random.Range(-squareSize / 2f, squareSize / 2f) + fishingSpot.transform.GetChild(0).transform.position.z;
+        return new Vector3(randomX, transform.position.y, randomZ);
     }
 
 

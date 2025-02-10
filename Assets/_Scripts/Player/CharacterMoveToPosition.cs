@@ -2,9 +2,12 @@ using UnityEngine.AI;
 using UnityEngine;
 using NaughtyAttributes;
 using UnityEngine.Events;
+using System;
 
 public class CharacterMoveToPosition : MonoBehaviour
 {
+    public event Action OnArrivedToFishingSpot;
+
     public NavMeshAgent agent;
     public float maxSearchRadius = 5.0f; // Max distance to find a valid NavMesh position
     public float rotationSpeed = 5f; // Speed of rotation to face target
@@ -13,14 +16,16 @@ public class CharacterMoveToPosition : MonoBehaviour
     public UnityEvent onArrival; // Event triggered on arrival
     //public Animator animator; // Reference to the Animator component
 
-    private bool hasArrived = false; // To prevent multiple triggers
+    private bool hasArrived = true; // To prevent multiple triggers
     private Vector3 lastTargetPosition; // Store the target position
-
+    private GameManager _gm;
     void Start()
     {
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
 
+        _gm = GameManager.Instance;
+        _gm.Player = this.gameObject;
         /*if (animator == null)
             animator = GetComponent<Animator>(); // Auto-assign Animator*/
     }
@@ -43,11 +48,6 @@ public class CharacterMoveToPosition : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) // Example trigger
-        {
-            MoveToPosition(new Vector3(fishingSpot.position.x, transform.position.y, fishingSpot.position.z)); // Target position (even if outside NavMesh)
-        }
-
         // Check if the agent has arrived
         if (!hasArrived && !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
         {
@@ -57,7 +57,7 @@ public class CharacterMoveToPosition : MonoBehaviour
                 onArrival?.Invoke(); // Trigger arrival event
                 //animator.SetBool("isWalking", false); // Stop walking animation
                 Debug.Log("Arrived");
-
+                OnArrivedToFishingSpot?.Invoke();
                 StartCoroutine(RotateTowardsTarget(lastTargetPosition));
             }
         }
@@ -67,10 +67,11 @@ public class CharacterMoveToPosition : MonoBehaviour
     {
         Vector3 lookDirection = (targetPosition - transform.position).normalized;
         lookDirection.y = 0; // Keep rotation on the horizontal plane
-
+        Debug.Log("Start Rotating");
         Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
         while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
         {
+            Debug.Log("Adjusting Rotation");
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             yield return null;
         }
