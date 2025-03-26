@@ -3,7 +3,7 @@ using TMPro;
 using System.Collections;
 using NaughtyAttributes;
 
-public class CountdownTimer : MonoBehaviour
+public class CountdownTimer : SingletonMB<CountdownTimer>
 {
     private GameManager GameManager => GameManager.Instance;
     //[SerializeField] private GameObject timerPausedText;
@@ -46,6 +46,7 @@ public class CountdownTimer : MonoBehaviour
         timeRemaining = minutes * 60; // Convert minutes to seconds
         isTimerRunning = true;         // Start the timer
         isPaused = false;              // Ensure it's not paused
+        timerText.gameObject.SetActive(true);
 
         coroutineTimer = StartCoroutine(DisplayTime(timeRemaining - 0.1f));
     }
@@ -55,7 +56,7 @@ public class CountdownTimer : MonoBehaviour
     {
 
         yield return new WaitForSeconds(0.1f);
-        timeToDisplay += 1;  // Add 1 second to round the countdown display properly
+        //timeToDisplay += 1;  // Add 1 second to round the countdown display properly
 
         int hours = Mathf.FloorToInt(timeToDisplay / 3600);   // Calculate the hours
         int minutes = Mathf.FloorToInt((timeToDisplay % 3600) / 60);  // Calculate the remaining minutes
@@ -91,9 +92,11 @@ public class CountdownTimer : MonoBehaviour
 
     public void StopTimer()
     {
-        StopCoroutine(coroutineTimer);
+        if(coroutineTimer != null)
+            StopCoroutine(coroutineTimer);
         isTimerRunning = false;
         timerText.text = "";
+        timerText.gameObject.SetActive(false);
     }
 
     // Check if the timer is running
@@ -113,6 +116,7 @@ public class CountdownTimer : MonoBehaviour
     private void OnTimerFinished()
     {
         GameManager.CountdownFinished();
+        timerText.gameObject.SetActive(false);
     }
 
 
@@ -120,7 +124,7 @@ public class CountdownTimer : MonoBehaviour
     [Button]
     public void DebugFinishTimer()
     {
-        timeRemaining = 0;
+        timeRemaining = -1;
     }
 
 

@@ -29,6 +29,12 @@ public class UIManager : SingletonMB<UIManager>
         //taskNamePanel.GetComponent<RectTransform>().position = new Vector3(0, 100, 0);
     }
 
+/*    private void OnDestroy()
+    {
+        GameManager.OnCountdownFinished -= GameManager_OnCountdownFinished;
+        base.OnDestroy();
+    }*/
+
     private void GameManager_OnCountdownFinished()
     {
         startFishButtonText.text = "Reel in";
@@ -52,10 +58,6 @@ public class UIManager : SingletonMB<UIManager>
     {
         bool isActive = newTaskPanel.activeSelf;
         newTaskPanel.SetActive(!isActive);
-        //if(!isActive)
-            //LeanTween.moveLocalY(taskNamePanel, -20, 1f);
-        //else
-            //LeanTween.moveLocalY(taskNamePanel, 100, 1f);
     }
 
     public void TimerStarted(bool isTimeRunning)
@@ -64,11 +66,12 @@ public class UIManager : SingletonMB<UIManager>
         {
             startFishButtonText.text = "Stop Fishing";
             startFishButtonText.transform.parent.GetComponent<Image>().color = stopColor;
+            startFishButtonText.transform.parent.gameObject.SetActive(true);
         }
         else
         {
             startFishButtonText.text = "Start Fishing";
-            startFishButtonText.transform.parent.GetComponent<Image>().color = startColor;
+            startFishButtonText.transform.parent.gameObject.SetActive(false);
         }
     }
 
@@ -93,14 +96,14 @@ public class UIManager : SingletonMB<UIManager>
         return newTask;
     }
 
-    public void PlusFishAnimation(int addFish)
+    public void PlusFishAnimation(int addFish, string fishType, string size)
     {
         CanvasGroup canvasGroup = plusFishUI.GetComponent<CanvasGroup>();
-        plusFishUI.GetComponentInChildren<TextMeshProUGUI>().text = $"+{addFish}";
+        plusFishUI.GetComponentInChildren<TextMeshProUGUI>().text = $"{size} {fishType}\nValue: {addFish}";
         canvasGroup.alpha = 1f;
         plusFishUI.transform.localPosition = Vector3.zero;
         LeanTween.moveLocalY(plusFishUI, 15f, 5f);
-        LeanTween.alphaCanvas(canvasGroup, 0f, 2f);
+        LeanTween.alphaCanvas(canvasGroup, 0f, 3f);
 
     }
 
@@ -114,12 +117,21 @@ public class UIManager : SingletonMB<UIManager>
         // Check if the input is a valid number
         if (!string.IsNullOrEmpty(input) && int.TryParse(input, out int value))
         {
-            // If it's negative, reset to an empty string or to zero
+            // If value is less than 5 remove input
             if (value < 5)
-                minutesInput.text = "5";
+                minutesInput.text = "";
+
+
+            
         }
     }
-
-    public void MainMenu() => SceneManager.LoadScene("MainMenu");
+    public void StopFishingButton() => GameManager.StopFishing();
+    public void StartNewTaskButton() => GameManager.StartNewTask();
+    public void MainMenu() 
+    {
+        GameManager.StopFishing();
+        DataPersistenceManager.Instance.SaveGame();
+        SceneManager.LoadScene("MainMenu");
+    }
 
 }

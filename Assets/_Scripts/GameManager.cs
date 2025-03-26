@@ -3,23 +3,34 @@ using System.Collections;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
-public class GameManager : SingletonMB<GameManager>
+public class GameManager : SingletonMB<GameManager>, IDataPersistence
 {
-    public bool IsTimerRunning => countdownTimer.IsTimerRunning();
+    public bool IsTimerRunning => CountdownTimer.IsTimerRunning();
     public bool IsFishing { get; private set;}
 
     public event Action<int> OnFishCountChange;
     public event Action OnCountdownFinished;
+    public event Action OnStartFishing;
+    public event Action OnStopFishing;
+    public event Action OnCatchFish;
     
     private UIManager UIManager => UIManager.Instance;
     private AudioSystem AudioSystem => AudioSystem.Instance;
-    private CountdownTimer countdownTimer;
+    private UpgradeHandler UpgradeHandler => UpgradeHandler.Instance;
+    private CountdownTimer CountdownTimer => CountdownTimer.Instance;
+    private FishingSpotManager FishingSpotManager => FishingSpotManager.Instance;
+    private FishCatchingManager FishCatchingManager => FishCatchingManager.Instance;
+
     private Task currentTask;
-    private int currentFishCount;
-    
+    private List<UpgradeHandler.UpgradeProgression> Progression => UpgradeHandler.UpgradeProgressions;
 
     private MenuSettings currentSettings;
+
+
+    public GameObject Player;
+    public GameData GameData;
 
     private class MenuSettings
     {
@@ -34,37 +45,42 @@ public class GameManager : SingletonMB<GameManager>
         public bool IsSoundEnabled;
     }
 
-    void Start()
+    public void ListenToEventsFromPlayer()
     {
-        countdownTimer = GetComponent<CountdownTimer>();
-        //StartCoroutine(GetTimeEverySecond());
-        if(UIManager)
-            UIManager.ToggleNewTaskPanel();
-    }
-    /*IEnumerator GetTimeEverySecond()
-    {
-        currentTime = DateTime.Now;
-        UIManager.SetUITime(currentTime.ToString(isMilitaryTime ? "H:mm" : "h:mm tt"));
-        yield return new WaitForSeconds(1f);
-        StartCoroutine(GetTimeEverySecond());
+        Player.GetComponent<CharacterMoveToPosition>().OnArrivedToFishingSpot
+        += GameManager_OnArrivedToFishingSpot;
     }
 
-    public void ToggleMilitaryTime()
+    private void GameManager_OnArrivedToFishingSpot()
     {
-        isMilitaryTime = !isMilitaryTime;
-        UIManager.SetUITime(currentTime.ToString(isMilitaryTime ? "H:mm" : "h:mm tt"));
-    }*/
+        UIManager.StartFishReelInButton();
+    }
 
     public void StartNewTask()
     {
         currentTask = UIManager.GetNewTask();
         if (currentTask.Minutes <= 0) return;
 
-        countdownTimer.StartCountdown(currentTask.Minutes);
+        CountdownTimer.StartCountdown(currentTask.Minutes);
         UIManager.TimerStarted(true);
         IsFishing = true;
+        OnStartFishing?.Invoke();
         // close the panel
         UIManager.ToggleNewTaskPanel();
+    }
+    private IEnumerator InitDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
+        
+        UIManager.SetFishCountUI(GameData.FishCount);
+
+        for (int i = 0; i < GameData.Level; i++)
+        {
+            Progression[i].UpgradePart.SetActive(true);
+        }
+        UpgradeHandler.SetCurrentIslandLevel(GameData.Level);
+        UpgradeHandler.UpdateFishRequiredText();
+        UpgradeHandler.SetUpgradeButtonActive(GameData.Level < Progression.Count && GameData.FishCount >= Progression[GameData.Level].FishCost);
     }
 
     public void CountdownFinished()
@@ -80,32 +96,53 @@ public class GameManager : SingletonMB<GameManager>
             //restart timer warning
             UIManager.ShowReelWarning();
         else
-            CatchFish();
+        {
+            if (FishCatchingManager.MiniGame.ReelIn())
+                CatchFish();
+        }
     }
 
     public void StopFishing()
     {
-        countdownTimer.StopTimer();
+        CountdownTimer.StopTimer();
         UIManager.TimerStarted(false);
         IsFishing = false;
+        OnStopFishing?.Invoke();
     }
 
     private void CatchFish()
     {
-        int fishToAdd = (currentTask.Minutes - 1) / 20 + 1;
-        UIManager.PlusFishAnimation(fishToAdd);
+        FishCatchingManager.FishTypeData fishData = FishCatchingManager.GetFishDataToCatch(currentTask.Minutes); // gets a random fish depending on minutes passed
+        string fishSize = FishCatchingManager.GetFishSizeString(currentTask.Minutes); // get size from minutes
+        int fishToAdd = (int)FishCatchingManager.GetFishValue(fishData, currentTask.Minutes); // gets fish calculated value      
+        UIManager.PlusFishAnimation(fishToAdd, fishData.Type.ToString(), fishSize);
         FishCountHandler(fishToAdd);
         AudioSystem.SoundsSource.Stop();
         UIManager.TimerStarted(false);
         IsFishing = false;
+        FishingSpotManager.MakeNewFishingSpot();
+        OnCatchFish?.Invoke();
+        Debug.Log($"{fishData.Type.ToString()} is caught with a value of: {fishToAdd}");
     }
 
-    public void FishCountHandler(int fish)
+    public void FishCountHandler(int fishCount)
     {
-        currentFishCount += fish; // can be - or + fish
-        OnFishCountChange?.Invoke(currentFishCount);
-        UIManager.SetFishCountUI(currentFishCount);
+        GameData.FishCount += fishCount; // can be - or + fish 
+        OnFishCountChange?.Invoke(GameData.FishCount);
+        UIManager.SetFishCountUI(GameData.FishCount);
     }
-    public void PlayGame() => SceneManager.LoadScene("FishingGame");
-    public void ExitGame() => Application.Quit();
+    /// <summary>
+    /// Save data
+    /// </summary>
+
+    public void LoadData(GameData data)
+    {
+        GameData = data;
+        StartCoroutine(InitDelay());
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data = GameData;
+    }
 }
