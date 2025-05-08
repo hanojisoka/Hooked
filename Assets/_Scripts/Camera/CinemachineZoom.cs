@@ -14,11 +14,11 @@ public class CinemachineZoom : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            zoomOutCam.gameObject.SetActive(!zoomOutCam.gameObject.activeSelf);
-            zoomInCam.gameObject.SetActive(!zoomInCam.gameObject.activeSelf);
-        }
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     zoomOutCam.gameObject.SetActive(!zoomOutCam.gameObject.activeSelf);
+        //     zoomInCam.gameObject.SetActive(!zoomInCam.gameObject.activeSelf);
+        // }
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 

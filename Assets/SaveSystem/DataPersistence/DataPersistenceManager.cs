@@ -21,13 +21,20 @@ public class DataPersistenceManager : SingletonMB<DataPersistenceManager>
 
     }
 
-    private void Start()
+    void Awake()
     {
+        base.Awake();
+        
         this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName);
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
 
         // Load data on start
         LoadGame();
+    }
+
+    private void Start()
+    {
+        
     }
 
     public void LoadGame()

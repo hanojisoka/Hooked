@@ -15,6 +15,7 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
     public event Action OnStartFishing;
     public event Action OnStopFishing;
     public event Action OnCatchFish;
+    public event Action OnReelIn;
     
     private UIManager UIManager => UIManager.Instance;
     private AudioSystem AudioSystem => AudioSystem.Instance;
@@ -57,7 +58,10 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
         {
             UIManager.StartFishReelInButton(); //change this in the future
         }
-        
+        if(tag == "Kutingting")
+        {
+            KutingtingConversation.Instance.StartConversation();
+        }
     }
 
     public void StartNewTask()
@@ -91,8 +95,8 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
     public void CountdownFinished()
     {
         OnCountdownFinished?.Invoke();
-        if(currentTask.IsSoundEnabled)
-            AudioSystem.SoundsSource.Play();
+        if(currentTask.IsSoundEnabled) // Play aralm sound
+            AudioSystem.PlayAlarmSound();
     }
 
     public void ReelInPressed()
@@ -102,8 +106,9 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
             UIManager.ShowReelWarning();
         else
         {
-            if (FishCatchingManager.MiniGame.ReelIn())
-                CatchFish();
+            if (FishCatchingManager.MiniGame.ReelIn()){
+                OnReelIn?.Invoke();
+            }
         }
     }
 
@@ -115,7 +120,7 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
         OnStopFishing?.Invoke();
     }
 
-    private void CatchFish()
+    public void CatchFish()
     {
         FishCatchingManager.FishTypeData fishData = FishCatchingManager.GetFishDataToCatch(currentTask.Minutes); // gets a random fish depending on minutes passed
         string fishSize = FishCatchingManager.GetFishSizeString(currentTask.Minutes); // get size from minutes
@@ -125,7 +130,6 @@ public class GameManager : SingletonMB<GameManager>, IDataPersistence
         AudioSystem.SoundsSource.Stop();
         UIManager.TimerStarted(false);
         IsFishing = false;
-        FishingSpotManager.MakeNewFishingSpot();
         OnCatchFish?.Invoke();
         Debug.Log($"{fishData.Type.ToString()} is caught with a value of: {fishToAdd}");
     }

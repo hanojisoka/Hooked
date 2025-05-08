@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Sea
   - FishingSpot
+  - Kutingting
   layers:
   - Default
   - TransparentFX

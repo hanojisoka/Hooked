@@ -4,6 +4,7 @@ using NaughtyAttributes;
 using UnityEngine.Events;
 using System;
 
+
 public class CharacterMoveToPosition : MonoBehaviour
 {
     public event Action<string> OnArrivedToSpot;
@@ -21,6 +22,8 @@ public class CharacterMoveToPosition : MonoBehaviour
     private GameManager _gm;
     private string currentSpotTag;
 
+    private Vector3 _targetPosition;
+
     private void OnEnable()
     {
         _gm = GameManager.Instance;
@@ -32,7 +35,7 @@ public class CharacterMoveToPosition : MonoBehaviour
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
 
-        
+
         _gm.ListenToEventsFromPlayer();
         /*if (animator == null)
             animator = GetComponent<Animator>(); // Auto-assign Animator*/
@@ -54,6 +57,12 @@ public class CharacterMoveToPosition : MonoBehaviour
         }
     }
 
+    public void RotateTowards(Vector3 targetPosition)
+    {
+        StartCoroutine(RotateTowardsTarget(targetPosition));
+        _targetPosition = targetPosition; // Store the target position for later use
+    }
+
     void Update()
     {
         // Check if the agent has arrived
@@ -66,7 +75,12 @@ public class CharacterMoveToPosition : MonoBehaviour
                 //animator.SetBool("isWalking", false); // Stop walking animation
                 Debug.Log("Arrived");
                 OnArrivedToSpot?.Invoke(currentSpotTag);
-                StartCoroutine(RotateTowardsTarget(lastTargetPosition));
+                if(currentSpotTag == "Kutingting")
+                {
+                    StartCoroutine(RotateTowardsTarget(_targetPosition));
+                }
+                else
+                    StartCoroutine(RotateTowardsTarget(lastTargetPosition));
             }
         }
     }
@@ -77,10 +91,14 @@ public class CharacterMoveToPosition : MonoBehaviour
         lookDirection.y = 0; // Keep rotation on the horizontal plane
         Debug.Log("Start Rotating");
         Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-        while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
+
+        float duration = 1f; // Rotation duration in seconds
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
         {
-            Debug.Log("Adjusting Rotation");
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 

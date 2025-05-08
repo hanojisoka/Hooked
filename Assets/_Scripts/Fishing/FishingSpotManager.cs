@@ -10,8 +10,15 @@ public class FishingSpotManager : SingletonMB<FishingSpotManager>
 {
     public event Action<FishingSpot> OnNewFishingSpot;
     private List<FishingSpot> fishingSpots = new();
+    private GameManager _gm => GameManager.Instance;
 
     private void Start()
+    {
+        MakeNewFishingSpot();
+        _gm.OnReelIn += OnReelIn;
+    }
+
+    private void OnReelIn()
     {
         MakeNewFishingSpot();
     }

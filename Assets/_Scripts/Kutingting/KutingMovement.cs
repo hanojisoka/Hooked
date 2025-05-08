@@ -20,7 +20,7 @@ public class KutingMovement : MonoBehaviour
     }
 
     void Update()
-    {
+    { 
         AnimationUpdate();
     }
 
@@ -35,6 +35,32 @@ public class KutingMovement : MonoBehaviour
 
         // Start walking coroutine
         StartCoroutine(WalkToRandomPoints());
+    }
+
+    [Button]
+    public void PauseWalking()
+    {
+        if(navMeshAgent.enabled == false) return;
+        // Stop the walking coroutine
+        Debug.Log("Walking paused");
+        isActive = false;
+        navMeshAgent.isStopped = true; // Stop the NavMeshAgent
+
+        // Make the character look at the player gradually
+        StartCoroutine(RotateTowardsPlayer());
+    }
+
+    [Button]
+    public void ResumeWalking()
+    {
+        if(navMeshAgent.enabled == false) return;
+        Debug.Log("Walking resumed");
+        if (!isActive)
+        {
+            isActive = true;
+            navMeshAgent.isStopped = false; // Resume the NavMeshAgent
+            StartCoroutine(WalkToRandomPoints()); // Restart the coroutine
+        }
     }
 
     private IEnumerator WalkToRandomPoints()
@@ -72,11 +98,12 @@ public class KutingMovement : MonoBehaviour
 
             transform.rotation = targetRotation; // Ensure final rotation is exact
 
-            // Wait for a random time between 1 to 3 seconds
-            yield return new WaitForSeconds(Random.Range(10f, 25f));
+            // Wait for a random time between 60 to 120 seconds
+            yield return new WaitForSeconds(Random.Range(60f, 120f));
         }
     }
-    private void RotateTowardsPlayer()
+
+    private IEnumerator RotateTowardsPlayer()
     {
         // Get the player's position
         Vector3 playerPosition = _gm.Player.transform.position;
@@ -87,9 +114,21 @@ public class KutingMovement : MonoBehaviour
         // Calculate the target rotation
         Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
 
-        // Rotate towards the player smoothly
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+        // Gradually rotate towards the player over 1 second
+        float duration = 1f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the final rotation is exact
+        transform.rotation = targetRotation;
     }
+
     #region Animation
     [SerializeField] private Animator _anim;
 

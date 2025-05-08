@@ -100,6 +100,7 @@ public class UpgradeHandler : SingletonMB<UpgradeHandler>
             shape.scale = newUpgrade.transform.localScale;
             vfx.Play();
         }
+
         upgradeVFX.transform.position = newUpgrade.transform.position;
         newUpgrade.SetActive(true);
     }

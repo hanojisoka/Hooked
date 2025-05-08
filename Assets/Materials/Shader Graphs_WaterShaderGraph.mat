@@ -69,11 +69,11 @@ Material:
     - _QueueOffset: 0
     - _ReflectionRefraction: 0.08
     - _Refraction: 0.04
-    - _Smoothness: 0.825
+    - _Smoothness: 0.3
     - _WaterLerp: 0.55
     m_Colors:
     - _AbsorptionColor: {r: 0.764151, g: 0.27033645, b: 0.27033645, a: 1}
-    - _Albedo: {r: 0.18064122, g: 0.5471698, b: 0.028390888, a: 0}
+    - _Albedo: {r: 0.13725491, g: 0.45490196, b: 0, a: 0}
     - _UV1: {r: 13, g: 13, b: -0.61, a: -0.32}
     - _UV2: {r: 14, g: 14, b: 0, a: 0}
     - _WaterColor: {r: 0.8726415, g: 0.97452825, b: 1, a: 0}

@@ -12,7 +12,7 @@ public class UIManager : SingletonMB<UIManager>
     [Header("HUD")]
     [SerializeField] private GameObject reelWarningPanel;
     [SerializeField] private TextMeshProUGUI startFishButtonText;
-    [SerializeField] private Color startColor, stopColor;
+    //[SerializeField] private Color startColor, stopColor;
     [SerializeField] private TextMeshProUGUI fishCatchedUI;
     [Header("Task Panel")]
     [SerializeField] private GameObject newTaskPanel;
@@ -20,6 +20,7 @@ public class UIManager : SingletonMB<UIManager>
     [SerializeField] private Toggle soundToggle;
     [Header("Catch Fish")]
     [SerializeField] private GameObject plusFishUI;
+    [SerializeField] private FishPopUpUI fishPopUpUI;
 
     // Start is called before the first frame update
     void Start()
@@ -37,8 +38,8 @@ public class UIManager : SingletonMB<UIManager>
 
     private void GameManager_OnCountdownFinished()
     {
-        startFishButtonText.text = "Reel in";
-        startFishButtonText.transform.parent.GetComponent<Image>().color = startColor;
+        // startFishButtonText.text = "Reel in";
+        // startFishButtonText.transform.parent.GetComponent<Image>().color = startColor;
     }
 
     public void ShowReelWarning()
@@ -65,7 +66,7 @@ public class UIManager : SingletonMB<UIManager>
         if (isTimeRunning)
         {
             startFishButtonText.text = "Stop Fishing";
-            startFishButtonText.transform.parent.GetComponent<Image>().color = stopColor;
+            //startFishButtonText.transform.parent.GetComponent<Image>().color = stopColor;
             startFishButtonText.transform.parent.gameObject.SetActive(true);
         }
         else
@@ -98,18 +99,20 @@ public class UIManager : SingletonMB<UIManager>
 
     public void PlusFishAnimation(int addFish, string fishType, string size)
     {
-        CanvasGroup canvasGroup = plusFishUI.GetComponent<CanvasGroup>();
-        plusFishUI.GetComponentInChildren<TextMeshProUGUI>().text = $"{size} {fishType}\nValue: {addFish}";
-        canvasGroup.alpha = 1f;
-        plusFishUI.transform.localPosition = Vector3.zero;
-        LeanTween.moveLocalY(plusFishUI, 15f, 5f);
-        LeanTween.alphaCanvas(canvasGroup, 0f, 3f);
+        CanvasGroup canvasGroup = fishPopUpUI.GetComponent<CanvasGroup>();
+        //plusFishUI.GetComponentInChildren<TextMeshProUGUI>().text = $"{size} {fishType}\nValue: {addFish}";
+        fishPopUpUI.ShowFishPopUp(addFish, fishType, size);
+        fishPopUpUI.gameObject.SetActive(true);
+        canvasGroup.alpha = 0f;
+        //plusFishUI.transform.localPosition = Vector3.zero;
+        //LeanTween.moveLocalY(plusFishUI, 15f, 5f);
+        LeanTween.alphaCanvas(canvasGroup, 1f, 0.5f);
 
     }
 
     public void SetFishCountUI(int value)
     {
-        fishCatchedUI.text = $"= {value}";
+        fishCatchedUI.text = $"{value}";
     }
 
     private void MinutesInputValidator(string input)

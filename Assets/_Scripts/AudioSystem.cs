@@ -8,6 +8,10 @@ public class AudioSystem : SingletonMB<AudioSystem>
     public AudioSource SoundsSource;
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider soundSlider;
+    [Header("SFX Clips")]
+    [SerializeField] private AudioClip _buttonPress;
+    [SerializeField] private AudioClip _alarmSound;
+    
 
 
     private void Start()
@@ -17,7 +21,10 @@ public class AudioSystem : SingletonMB<AudioSystem>
     }
     public void PlayMusic(AudioClip clip)
     {
-        MusicSource.clip = clip;
+        if (clip != null)
+        {
+            MusicSource.clip = clip;
+        }
         MusicSource.Play();
     }
 
@@ -30,6 +37,30 @@ public class AudioSystem : SingletonMB<AudioSystem>
     public void PlaySound(AudioClip clip, float vol = 1)
     {
         SoundsSource.PlayOneShot(clip, vol);
+    }
+
+    public void PlaySound(AudioClip clip)
+    {
+        SoundsSource.transform.position = Camera.main.transform.position;
+        SoundsSource.PlayOneShot(clip, 1);
+    }
+
+    public void PlayLoopingSound(AudioClip clip, Vector3 pos, float vol = 1)
+    {
+        SoundsSource.transform.position = pos;
+        SoundsSource.clip = clip;
+        SoundsSource.volume = vol;
+        SoundsSource.loop = true;
+        SoundsSource.Play();
+    }
+
+    public void PlayButtonPressSound()
+    {
+        PlaySound(_buttonPress);
+    }
+    public void PlayAlarmSound()
+    {
+        PlayLoopingSound(_alarmSound, transform.position, 0.7f);
     }
 
     public void StopSound()

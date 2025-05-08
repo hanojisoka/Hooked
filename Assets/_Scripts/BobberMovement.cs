@@ -13,11 +13,16 @@ public class BobberMovement : MonoBehaviour
     private Vector3 targetPosition;
     private Coroutine movementCoroutine;
     private FishingSpotManager _fm;
+    private GameManager _gm => GameManager.Instance;
     private void Start()
     {
         _fm = FishingSpotManager.Instance;
         _fm.OnNewFishingSpot += _fm_OnNewFishingSpot;
+        _gm.OnCatchFish += OnCatchFish;
     }
+
+   
+
     private void OnEnable()
     {
         
@@ -30,6 +35,10 @@ public class BobberMovement : MonoBehaviour
     private void _fm_OnNewFishingSpot(FishingSpot spot)
     {
         fishingSpot = spot;
+    }
+    private void OnCatchFish()
+    {
+        transform.localPosition = Vector3.zero;
     }
 
     IEnumerator MoveRandomly()
@@ -59,7 +68,6 @@ public class BobberMovement : MonoBehaviour
         {
             StopCoroutine(movementCoroutine);
             movementCoroutine = null;
-            transform.localPosition = Vector3.zero;
         }
     }
 
